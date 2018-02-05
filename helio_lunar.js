@@ -11,14 +11,16 @@ setInterval(function() {
 function getWeatherData() {
     let xhr = new XMLHttpRequest();
     xhr.open("GET", "https://api.sunrise-sunset.org/json?lat=40.425869&lng=-86.908066&formatted=0", false);
+    xhr.onload = err => {
+        let weather_json = JSON.parse(xhr.responseText);
+        let sunrise = weather_json.results.sunrise;
+        let sunset = weather_json.results.sunset;
+        setBackground(sunrise, sunset);
+    }
     xhr.send();
     if(xhr.status != 200) {
         return;
     }
-    let weather_json = JSON.parse(xhr.responseText);
-    let sunrise = weather_json.results.sunrise;
-    let sunset = weather_json.results.sunset;
-    setBackground(sunrise, sunset);
 }
 
 function setBackground(sunrise_time, sunset_time) {
