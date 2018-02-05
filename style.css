@@ -20,7 +20,7 @@ h1 {
   }
 
 .moon { 
-    position: relative;
+    position: absolute;
     background-image: url("moon.svg");
     margin: auto;  
     width:90px;

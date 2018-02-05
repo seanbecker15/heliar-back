@@ -38,7 +38,7 @@ function getWeatherData() {
 }
 
 function setBackground(sunrise_time, sunset_time) {
-    let offset = 1000*60*60*3.4;
+    let offset = 0;
     let time = new Date(Date.now() + offset); // Now
     let sunrise = new Date(sunrise_time);   // Today's sunrise. If time < sunrise, it is nighttime
     let sunset  = new Date(new Date(sunset_time) + 1000*60*60);    // Today's sunset. If time > sunset, it is nighttime
@@ -46,7 +46,9 @@ function setBackground(sunrise_time, sunset_time) {
     let shade_coeff;
     let background_color;
     let color_change_time = 1000 * 60 * 60 * 1.5;
-
+    let sun_left;
+    let moon_left;
+    let sun_top, moon_top;
     if(time > sunset) {
         // Nighttime before midnight
         time_remaining = new Date(sunrise.getTime() + 1000 * 60 * 60 * 24) - time.getTime();  // Use (next day sunrise - current time)
@@ -56,13 +58,27 @@ function setBackground(sunrise_time, sunset_time) {
         } else {
             shade_coeff = -1;
         }
-        background_color = shade("#ffffff", shade_coeff);
+        background_color = shade("#2EB5E5", shade_coeff);
         body_style.backgroundColor = background_color;
         if(shade_coeff > -0.5) {
             body_style.color = "black";
         } else {
             body_style.color = "white";
         }
+        sun_left = -100 * time_remaining / (time_remaining + time_ellapsed);
+        moon_left = 100 - 100 * time_remaining / (time_remaining + time_ellapsed);
+        console.log(moon_left);
+        sun.style.left = sun_left + "%";
+        moon.style.left = moon_left + "%";
+        if(time_remaining > time_ellapsed) {
+            sun_top = 45 * (time_remaining - time_ellapsed) / time_remaining;      // Want 0 when time remaining == time ellapsed
+            moon_top = 45 * (time_remaining - time_ellapsed) / time_remaining;
+        } else {
+            sun_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+            moon_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+        }
+        sun.style.top = sun_top + "%";
+        moon.style.top = moon_top + "%";
     } else if(time < sunrise) {
         // Nighttime after midnight
         time_remaining = sunrise - time;
@@ -72,13 +88,27 @@ function setBackground(sunrise_time, sunset_time) {
         } else {
             shade_coeff = -1;
         }
-        background_color = shade("#ffffff", shade_coeff); // if shade_coeff == -1, this is black. 0 == white.
+        background_color = shade("#2EB5E5", shade_coeff); // if shade_coeff == -1, this is black. 0 == white.
         body_style.backgroundColor = background_color;
         if(shade_coeff > -0.5) {
             body_style.color = "black";
         } else {
             body_style.color = "white";
         }
+        sun_left = -100 * time_remaining / (time_remaining + time_ellapsed);
+        moon_left = 100-100 * time_remaining / (time_remaining + time_ellapsed);
+        sun.style.left = sun_left + "%";
+        moon.style.left = moon_left + "%";
+        if(time_remaining > time_ellapsed) {
+            sun_top = 45 * (time_remaining - time_ellapsed) / time_remaining;      // Want 0 when time remaining == time ellapsed
+            moon_top = 45 * (time_remaining - time_ellapsed) / time_remaining;
+        } else {
+            sun_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+            moon_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+        }
+        sun.style.top = sun_top + "%";
+        moon.style.top = moon_top + "%";
+        
     } else {
         // Daytime
         time_remaining = sunset - time;  // As this gets closer to 0, shading should get closer to 1
@@ -94,15 +124,21 @@ function setBackground(sunrise_time, sunset_time) {
         
         // Update sun and moon
         // Sun should be positive % across screen proportional to the time remaining
-        let sun_left = 100 - 100 * time_remaining / (time_remaining + time_ellapsed);
-        let moon_left = -100 * time_remaining / (time_remaining + time_ellapsed);
+        sun_left = 100 - 100 * time_remaining / (time_remaining + time_ellapsed);
+        moon_left = -100 * time_remaining / (time_remaining + time_ellapsed);
         sun.style.left = sun_left + "%";
         moon.style.left = moon_left + "%";
+        // Upward trajectory
+        if(time_remaining > time_ellapsed) {
+            sun_top = 45 * Math.pow((time_remaining - time_ellapsed) / time_remaining, 2);      // Want 0 when time remaining == time ellapsed
+            moon_top = 45 * (time_remaining - time_ellapsed) / time_remaining;
+        } else {
+            sun_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+            moon_top = 45 * (time_ellapsed - time_remaining) / time_ellapsed;
+        }
+        sun.style.top = sun_top + "%";
+        moon.style.top = moon_top + "%";
     }
-    
-
-    // if it's nighttime, base should be black and put white filter over
-    // if it's daytime, base should be white and put black filter over
 }
 
 function shade(color, percent) {   
