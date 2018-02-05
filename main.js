@@ -38,7 +38,8 @@ function getWeatherData() {
 }
 
 function setBackground(sunrise_time, sunset_time) {
-    let time = new Date(Date.now()); // Now
+    let offset = 1000*60*60*3.4;
+    let time = new Date(Date.now() + offset); // Now
     let sunrise = new Date(sunrise_time);   // Today's sunrise. If time < sunrise, it is nighttime
     let sunset  = new Date(new Date(sunset_time) + 1000*60*60);    // Today's sunset. If time > sunset, it is nighttime
     let time_remaining;  // The closer to 0 this gets, the more opaque the filter should be (inversely proporitional)
@@ -90,6 +91,13 @@ function setBackground(sunrise_time, sunset_time) {
         background_color = shade("#2EB5E5", shade_coeff);
         body_style.backgroundColor = background_color;
         body_style.color = "white";
+        
+        // Update sun and moon
+        // Sun should be positive % across screen proportional to the time remaining
+        let sun_left = 100 - 100 * time_remaining / (time_remaining + time_ellapsed);
+        let moon_left = -100 * time_remaining / (time_remaining + time_ellapsed);
+        sun.style.left = sun_left + "%";
+        moon.style.left = moon_left + "%";
     }
     
 
