@@ -1,10 +1,28 @@
+/* Insert this into stylesheet and edit as desired
+    .sun { 
+    position: absolute;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        margin: auto;  
+        width:70px;
+        height:70px;
+        border-radius:50%;	
+        background:white;
+        opacity:0.7;			
+        box-shadow: 0px 0px 20px 6px white;  
+    }
+*/
 let body_style = document.body.style;
+let sun = document.getElementById('sun');
+let moon = document.getElementById('moon');
 
 getWeatherData();
 
 setInterval(function() {
     getWeatherData();
-}, 10000)
+}, 1000)
 
 function getWeatherData() {
     let xhr = new XMLHttpRequest();
@@ -20,36 +38,59 @@ function getWeatherData() {
 }
 
 function setBackground(sunrise_time, sunset_time) {
-    let time = new Date(Date.now() + 1000*60*60*6); // Now
+    let time = new Date(Date.now()); // Now
     let sunrise = new Date(sunrise_time);   // Today's sunrise. If time < sunrise, it is nighttime
     let sunset  = new Date(new Date(sunset_time) + 1000*60*60);    // Today's sunset. If time > sunset, it is nighttime
-    let filter_multiplier;  // The closer to 0 this gets, the more opaque the filter should be (inversely proporitional)
+    let time_remaining;  // The closer to 0 this gets, the more opaque the filter should be (inversely proporitional)
     let shade_coeff;
     let background_color;
+    let color_change_time = 1000 * 60 * 60 * 1.5;
+
     if(time > sunset) {
         // Nighttime before midnight
-        console.log('night time before midnight');
-        filter_multiplier = new Date(sunrise.getTime() + 1000 * 60 * 60 * 24) - time.getTime();  // Use next day sunrise - current time
-        body_style.backgroundColor = "black";
-    } else if(time < sunrise) {
-        // Nighttime after midnight
-        console.log('night time after midnight');
-        filter_multiplier = sunrise - time;
-        body_style.backgroundColor = "black";
-    } else {
-        // Daytime
-        console.log('day time');
-        filter_multiplier = sunset - time;  // As this gets closer to 0, shading should get closer to 1
-        time_ellapsed = time - sunrise;
-        if(time_ellapsed > filter_multiplier) {
-            shade_coeff = -((time_ellapsed - Math.pow(filter_multiplier, 1.2)) / time_ellapsed);
+        time_remaining = new Date(sunrise.getTime() + 1000 * 60 * 60 * 24) - time.getTime();  // Use (next day sunrise - current time)
+        time_ellapsed = time - sunset;
+        if(time_remaining < color_change_time) {
+            shade_coeff = -(1 - Math.pow((color_change_time - time_remaining) / color_change_time, .85)); // as time_remaining goes to 0, shade_coeff should go to 0(white).
         } else {
-            shade_coeff = 0;
+            shade_coeff = -1;
         }
         background_color = shade("#ffffff", shade_coeff);
         body_style.backgroundColor = background_color;
+        if(shade_coeff > -0.5) {
+            body_style.color = "black";
+        } else {
+            body_style.color = "white";
+        }
+    } else if(time < sunrise) {
+        // Nighttime after midnight
+        time_remaining = sunrise - time;
+        time_ellapsed = time - (sunset - 1000*60*60*24);  // (current time - last night's sunset time)
+        if(time_remaining < color_change_time) {
+            shade_coeff = -(1 - Math.pow((color_change_time - time_remaining) / color_change_time, .85)); 
+        } else {
+            shade_coeff = -1;
+        }
+        background_color = shade("#ffffff", shade_coeff); // if shade_coeff == -1, this is black. 0 == white.
+        body_style.backgroundColor = background_color;
+        if(shade_coeff > -0.5) {
+            body_style.color = "black";
+        } else {
+            body_style.color = "white";
+        }
+    } else {
+        // Daytime
+        time_remaining = sunset - time;  // As this gets closer to 0, shading should get closer to 1
+        time_ellapsed = time - sunrise;
+        if(time_remaining < color_change_time) {
+            shade_coeff = -Math.pow((color_change_time - time_remaining) / color_change_time, .85); 
+        } else {
+            shade_coeff = 0;
+        }
+        background_color = shade("#2EB5E5", shade_coeff);
+        body_style.backgroundColor = background_color;
+        body_style.color = "white";
     }
-    console.log(filter_multiplier);
     
 
     // if it's nighttime, base should be black and put white filter over

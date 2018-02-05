@@ -7,3 +7,14 @@ h1, h4 {
 h1 {
     margin-top: 200px;
 }
+
+.sun { 
+    position: absolute;
+    margin: auto;  
+    width:70px;
+    height:70px;
+    border-radius:50%;	
+    background:white;
+    opacity:0.7;			
+    box-shadow: 0px 0px 20px 6px white;  
+  }
