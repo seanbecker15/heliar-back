@@ -1,19 +1,3 @@
-/* Insert this into stylesheet and edit as desired
-    .sun { 
-    position: absolute;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-        margin: auto;  
-        width:70px;
-        height:70px;
-        border-radius:50%;	
-        background:white;
-        opacity:0.7;			
-        box-shadow: 0px 0px 20px 6px white;  
-    }
-*/
 let body_style = document.body.style;
 let sun = document.getElementById('sun');
 let moon = document.getElementById('moon');
